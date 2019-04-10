@@ -11,6 +11,15 @@ class Character {
     this.speed = v;
     this.health = health;
   }
+  move(direction){
+    var directions = {
+      up:    this.y -= speed,
+      down:  this.y += speed,
+      left:  this.x -= speed,
+      right: this.x += speed,
+    }
+    directions[direction];
+  }
 }
 
 class Player extends Character {
