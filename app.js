@@ -1,7 +1,16 @@
 let gameState = {
   score: 0,
   paused: true,
-  activeObjects: []
+  activeObjects: [],
+  draw: function(){
+    buffer.background(0);
+    buffer.noStroke();
+    buffer.fill(255);
+    for(let i = 0; i < this.activeObjects.length; i++){
+      let coords = this.activeObjects[i].coords;
+      buffer.ellipse(coords.x, coords.y, 50);
+    }
+  },
 }
 
 // Characters
@@ -13,18 +22,34 @@ class Character {
   }
   move(direction){
     var directions = {
-      up:    this.y -= speed,
-      down:  this.y += speed,
-      left:  this.x -= speed,
-      right: this.x += speed,
+      u: ()=>(this.coords.y -= this.speed),
+      d: ()=>(this.coords.y += this.speed),
+      l: ()=>(this.coords.x -= this.speed),
+      r: ()=>(this.coords.x += this.speed),
     }
-    directions[direction];
+    directions[direction]();
+  }
+  die(){
+    index = gameState.activeObjects.indexOf(this);
+    gameState.activeObjects.splice(index);
   }
 }
 
 class Player extends Character {
   constructor(x, y, v) {
     super(x, y, v);
+    gameState.activeObjects.push(this);
+  }
+  shoot(){
+    let bulat = new Projectile(this.x, this.y);
+    bulat.speed -=1;
+  }
+}
+
+class Projectile {
+  constructor (x, y) {
+    this.speed = 1;
+    this.coords ={x, y};
     gameState.activeObjects.push(this);
   }
 }
@@ -35,17 +60,12 @@ class Enemy extends Character {
     gameState.activeObjects.push(this);
   }
   shoot(){
-    let bullet = new Projectile(this.x, this.y);
-    gameState.activeObjects.push(bullet);
+    let bolet = new Projectile(this.x, this.y);
   }
 }
 
-class Projectile {
-  constructor (x, y) {
-    this.speed = 1;
-    this.x = x;
-    this.y = y;
-  }
-}
 
-let enemy1 = new Enemy(5)
+
+
+// initialise game
+var player = new Player(50, 200, 30);
