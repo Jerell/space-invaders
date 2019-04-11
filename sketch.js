@@ -6,12 +6,6 @@ function setup() {
   buffer.background(0, 0, 0, 0);
 }
 
-var keybinds = {
-  37: () => player.move("l"),
-  39: () => player.move("r"),
-  32: () => player.shoot()
-};
-
 function tryKeyPress(key) {
   try {
     if (keyIsDown(key)) {

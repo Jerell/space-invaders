@@ -13,6 +13,13 @@ let gameState = {
   },
 }
 
+var keybinds = {
+  37: () => player.move("l"),
+  39: () => player.move("r"),
+  32: () => player.shoot()
+};
+
+
 // Characters
 class Character {
   constructor(x, y, v, health = 10, ) {
