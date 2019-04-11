@@ -2,16 +2,27 @@ let gameState = {
   score: 0,
   paused: true,
   activeObjects: [],
-  draw: function(){
+  draw: function() {
     buffer.background(0);
     buffer.noStroke();
     buffer.fill(255);
-    for(let i = 0; i < this.activeObjects.length; i++){
-      let coords = this.activeObjects[i].coords;
-      buffer.ellipse(coords.x, coords.y, 50);
+    console.log(this.activeObjects)
+    for (let i = this.activeObjects.length - 1; i >= 0; i--) {
+      if (typeof this.activeObjects[i] == undefined) {
+        continue;
+      } else {
+
+        let coords = this.activeObjects[i].coords;
+
+        buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size);
+        if (this.activeObjects[i] instanceof Projectile) {
+          this.activeObjects[i].fly();
+      
+        }
+      }
     }
-  },
-}
+  }
+};
 
 var keybinds = {
   37: () => player.move("l"),
@@ -19,26 +30,44 @@ var keybinds = {
   32: () => player.shoot()
 };
 
-
 // Characters
 class Character {
-  constructor(x, y, v, health = 10, ) {
+  constructor(x, y, v, health = 10) {
     this.coords = { x, y };
     this.speed = v;
     this.health = health;
+    this.size = 50;
   }
-  move(direction){
+
+  move(direction) {
     var directions = {
-      u: ()=>(this.coords.y -= this.speed),
-      d: ()=>(this.coords.y += this.speed),
-      l: ()=>(this.coords.x -= this.speed),
-      r: ()=>(this.coords.x += this.speed),
-    }
+      u: () => {
+        if (this.coords.y > this.speed) {
+          this.coords.y -= this.speed;
+        }
+      },
+      d: () => {
+        if (this.coords.y < windowHeight - this.speed) {
+          this.coords.y += this.speed;
+        }
+      },
+      l: () => {
+        if (this.coords.x > this.speed) {
+          this.coords.x -= this.speed;
+        }
+      },
+      r: () => {
+        if (this.coords.x < windowWidth - this.speed) {
+          this.coords.x += this.speed;
+        }
+      }
+    };
     directions[direction]();
   }
-  die(){
-    index = gameState.activeObjects.indexOf(this);
-    gameState.activeObjects.splice(index);
+
+  die() {
+    let index = gameState.activeObjects.indexOf(this);
+    gameState.activeObjects.splice(index, 1);
   }
 }
 
@@ -47,17 +76,30 @@ class Player extends Character {
     super(x, y, v);
     gameState.activeObjects.push(this);
   }
-  shoot(){
-    let bulat = new Projectile(this.x, this.y);
-    bulat.speed -=1;
+  shoot() {
+    let bulat = new Projectile(this.coords.x, this.coords.y);
+    bulat.speed *= -1;
   }
 }
 
 class Projectile {
-  constructor (x, y) {
+  constructor(x, y) {
     this.speed = 1;
-    this.coords ={x, y};
+    this.size = 10;
+    this.coords = { x, y };
     gameState.activeObjects.push(this);
+  }
+  fly() {
+    this.coords.y += this.speed;
+    if (this.coords.y < 0) {
+      this.die();
+    }
+  }
+  die() {
+    if(gameState.activeObjects[1]){
+      let index = gameState.activeObjects.indexOf(this);
+      gameState.activeObjects.splice(index, 1);
+    }
   }
 }
 
@@ -66,13 +108,10 @@ class Enemy extends Character {
     super(0, 0, v, 3);
     gameState.activeObjects.push(this);
   }
-  shoot(){
+  shoot() {
     let bolet = new Projectile(this.x, this.y);
   }
 }
 
-
-
-
 // initialise game
-var player = new Player(50, 200, 30);
+var player = new Player(50, 250, 30);

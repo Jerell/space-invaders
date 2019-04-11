@@ -1,3 +1,4 @@
+const UDLR_CODES = [38, 40, 37, 39, 32]
 // initialises canvas
 function setup() {
   createCanvas(document.body.clientWidth, windowHeight);
@@ -8,28 +9,24 @@ function setup() {
 
 function tryKeyPress(key) {
   try {
-    if (keyIsDown(key)) {
-      keybinds[key]();
-    }
+    keybinds[key]();
   } catch (error) {
-    console.log(`${key} doesn't do anything`);
+    throw error
   }
 }
 
-function keyPressed() {
-  tryKeyPress(keyCode);
-}
 
 //draw function
 function draw() {
   image(buffer, 0, 0);
-  gameState.draw();
 
-  // if (keyIsPressed) {
-  //   try {
-  //     keybinds[key]();
-  //   } catch (error) {
-  //     console.log(`${key} doesn't do anything`);
-  //   }
-  // }
+  if(keyIsPressed){
+    if(keyIsDown(keyCode)){
+      if(UDLR_CODES.indexOf(keyCode) > -1){
+        tryKeyPress(keyCode);
+      }
+    }
+
+  }
+  gameState.draw();
 }
