@@ -4,7 +4,7 @@ const characterSize = 5;
 
 var canvasDimensions = {
   x: 1000,
-  y: 600
+  y: innerHeight
 }
 
 // initialises canvas
