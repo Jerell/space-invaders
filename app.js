@@ -1,8 +1,61 @@
 let gameState = {
+  level: -1,
   score: 0,
   unpaused: true,
   activeObjects: [],
-  getHealthIndicator: ()=>{
+  stages: [
+    // Level 0
+    ( )=> {
+      let offset = 0
+      for(var i = 0; i < 10; i++){
+        offset += 60 * i
+        var enemy = new Enemy(5 - offset)
+      }
+    },
+    // Level 1
+    ( )=> {
+      let offset = 0
+      for(var i = 0; i < 40; i++){
+        offset = 60 * i
+        var enemy = new Enemy(5 - offset)
+      }
+    },
+    // Level 2
+    () => {
+      let offset = 0
+      for(var i = 0; i < 50; i++){
+        if(i % 5 == 0){
+          offset += 200
+        }
+        offset = 60 * i
+        var enemy = new Enemy(5 - offset)
+      }
+    },
+    // Level 3
+    () => {
+      let offset = 0
+      for(var i = 0; i < 50; i++){
+        if(i % 3 == 0){
+          offset += 110
+        }
+        offset = 60 * i
+        var enemy = new Enemy(5 - offset)
+      }
+    },
+  ],
+  levelUp: function() {
+    this.level ++
+    if(this.level > 0){
+      this.score += 1000
+      if(player.health < 3){
+        player.health ++
+      }
+    }
+    if(this.level < this.stages.length){
+      this.stages[this.level]()
+    }
+  },
+  getHealthIndicator: function() {
     var healthMarker = '❤'
     var healthIndicator = ''
     for(let i = 0; i < player.health; i++){
@@ -11,10 +64,13 @@ let gameState = {
     return healthIndicator
   },
   draw: function() {
+    if(this.activeObjects.length == 1){
+      this.levelUp()
+    }
     buffer.background(0)
     buffer.noStroke()
     buffer.fill(255)
-    buffer.text(`Score: ${this.score}`, canvasDimensions.x / 2, 20)
+    buffer.text(`Level: ${this.level} Score: ${this.score}`, canvasDimensions.x / 2, 20)
     buffer.fill(255, 0, 0)
     buffer.text(`${this.getHealthIndicator()}`, canvasDimensions.x / 2, 45)
     buffer.fill(255)
@@ -145,14 +201,14 @@ class Player extends Character {
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-    this.ammo = 4
-    this.maxAmmo = 4
+    this.ammo = 8
+    this.maxAmmo = 10
     gameState.activeObjects.push(this)
   }
   shoot() {
     if(this.ammo > 1){
       let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
-      bullet.speed *= -1
+      bullet.speed *= -1.8
       this.ammo --
     }
   }
@@ -240,13 +296,3 @@ class Enemy extends Character {
 
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
-
-var stages = [
-  ()=>{
-    for(var i = 0; i < 40; i++){
-      var enemy = new Enemy(5 - 60 * i)
-    }
-  },
-]
-
-stages[0]()
