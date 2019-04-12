@@ -13,14 +13,12 @@ let gameState = {
         let coords = this.activeObjects[i].coords
 
 
+        this.activeObjects[i].draw()
         if (this.activeObjects[i] instanceof Enemy) {
           this.activeObjects[i].march()
-          this.activeObjects[i].draw()
         } else if (this.activeObjects[i] instanceof Player) {
-          this.activeObjects[i].draw()
           this.activeObjects[i].regenAmmo()
         } else {
-          buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size)
           if (this.activeObjects[i] instanceof Projectile) {
             this.activeObjects[i].fly()
           }
