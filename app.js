@@ -61,7 +61,7 @@ class Character {
         }
       },
       d: () => {
-        if (this.coords.y < windowHeight - currentSpeed) {
+        if (this.coords.y < canvasDimensions.y - currentSpeed) {
           this.coords.y += currentSpeed
         }
       },
@@ -71,7 +71,7 @@ class Character {
         }
       },
       r: () => {
-        if (this.coords.x < windowWidth - currentSpeed) {
+        if (this.coords.x < (canvasDimensions.x - currentSpeed - this.size * CHARACTER_IMAGE_COLUMNS)) {
           this.coords.x += currentSpeed
         }
       }
@@ -88,12 +88,11 @@ class Character {
   }
 
   hitDetection(){
-    
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
       if (gameState.activeObjects[i] instanceof Projectile) {
         
-        var x = (this.shape.length - 1) % characterSize + 1;
-        var y = Math.floor((this.shape.length - 1) / characterSize) + 1;
+        var x = (this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS + 1;
+        var y = Math.floor((this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS) + 1;
         
         var bulletIsTravellingDown = gameState.activeObjects[i].speed >= 0;
 
@@ -110,7 +109,7 @@ class Character {
           } else if(this instanceof Enemy && !bulletIsTravellingDown){
             gameState.activeObjects[i].die()
             this.takeDamage();
-            }
+          }
         }
       }
     } 
@@ -135,7 +134,7 @@ class Player extends Character {
   }
   shoot() {
     if(this.ammo > 1){
-      let bullet = new Projectile(this.coords.x + this.size * 2.5, this.coords.y - this.size * 2)
+      let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
       bullet.speed *= -1
       this.ammo --
     }
@@ -158,7 +157,7 @@ class Projectile {
   fly(){
     var currentSpeed = gameState.unpaused ? this.speed : 0;
     this.coords.y += currentSpeed
-    if (this.coords.y < 0) {
+    if (this.coords.y < 0 || this.coords.y > canvasDimensions.y) {
       this.die()
     }
   }
@@ -175,8 +174,14 @@ class Projectile {
 }
 
 class Enemy extends Character {
-  constructor(v, s = 5) {
-    super(5, 5, s, v, 1)
+  constructor(x = 5,
+              y = 5,
+              v = 2, 
+              s = 5, 
+              h = 1
+              ) {
+    super(x, y, s, v, h)
+    this.hasEnteredScreen = false
     this.shape = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
                   1, 0, 1, 0, 1,
@@ -186,7 +191,11 @@ class Enemy extends Character {
     gameState.activeObjects.push(this)
   }
   shoot() {
-    let bullet = new Projectile(this.coords.x + this.size / 2, this.coords.y + this.size * 1.2)
+    if(!this.hasEnteredScreen){
+      return
+    }
+    var imageRows = Math.floor((this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS) + 1
+    let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y + this.size * imageRows)
   }
   isTouchingLeftWall(){
     return this.coords.x <= 0
@@ -195,11 +204,14 @@ class Enemy extends Character {
     return this.coords.x + this.size * 6 >= canvasDimensions.x
   }
   march(){
-    if(this.isTouchingRightWall() || this.isTouchingLeftWall()){
-      var newSpeed = -this.speed
-      this.speed = 0
+    if(!this.hasEnteredScreen){
+      if(this.coords.x > 0){
+        this.hasEnteredScreen = true
+      }
+    }
+    if(this.isTouchingRightWall() || this.isTouchingLeftWall() && this.hasEnteredScreen){
       this.coords.y += this.size * 8
-      this.speed = newSpeed
+      this.speed *= -1
     }
     this.move('r')
     if(gameState.unpaused && Math.random() < 0.01){
@@ -212,9 +224,7 @@ class Enemy extends Character {
 var player = new Player(50, canvasDimensions.y - 50, 5)
 
 if(gameState.unpaused){
-  for(var i = 0; i < 25; i++){
-    setTimeout(() => {
-      var enemy = new Enemy(2)
-    }, 500 * i)
+  for(var i = 0; i < 30; i++){
+    var enemy = new Enemy(5 - 60 * i)
   }
 }

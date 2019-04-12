@@ -1,6 +1,6 @@
 // const UDLR_CODES = [38, 40, 37, 39, 32]
 const KEYS = [37, 39, 32, 80]
-const characterSize = 5;
+const CHARACTER_IMAGE_COLUMNS = 5;
 
 var canvasDimensions = {
   x: 1000,
@@ -25,8 +25,8 @@ function tryKeyPress(key) {
 
 function drawObject(obj, xOffset = 0, yOffset = 0, size = 10){
   for(var i = 0; i < obj.length; i++){
-    var x = i % characterSize
-    var y = Math.floor(i / characterSize)
+    var x = i % CHARACTER_IMAGE_COLUMNS
+    var y = Math.floor(i / CHARACTER_IMAGE_COLUMNS)
     if(obj[i]){
       buffer.rect(x * size + xOffset, y * size + yOffset, size, size)
     }
