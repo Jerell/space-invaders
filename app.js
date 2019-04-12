@@ -2,11 +2,22 @@ let gameState = {
   score: 0,
   unpaused: true,
   activeObjects: [],
+  getHealthIndicator: ()=>{
+    var healthMarker = '❤'
+    var healthIndicator = ''
+    for(let i = 0; i < player.health; i++){
+      healthIndicator += healthMarker
+    }
+    return healthIndicator
+  },
   draw: function() {
     buffer.background(0)
     buffer.noStroke()
     buffer.fill(255)
     buffer.text(`Score: ${this.score}`, canvasDimensions.x / 2, 20)
+    buffer.fill(255, 0, 0)
+    buffer.text(`${this.getHealthIndicator()}`, canvasDimensions.x / 2, 45)
+    buffer.fill(255)
     for (let i = this.activeObjects.length - 1; i >= 0; i--) {
       if (typeof this.activeObjects[i] == undefined) {
         continue
@@ -182,7 +193,7 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(x = 5,
-              y = 35,
+              y = 60,
               v = 2, 
               s = 5, 
               h = 1,
