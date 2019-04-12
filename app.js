@@ -248,6 +248,7 @@ class Player extends Character {
       let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
       bullet.speed *= -1.8
       this.ammo --
+      gameState.score -= 3 ** gameState.level
     }
   }
   regenAmmo() {
