@@ -37,7 +37,7 @@ var keybinds = {
 
 // Characters
 class Character {
-  constructor(x, y, s, v, health = 10) {
+  constructor(x, y, s, v, health = 1) {
     this.coords = { x, y }
     this.speed = v
     this.health = health
@@ -87,7 +87,7 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, 5, v)
+    super(x, y, 5, v, 3)
     this.shape = [0, 0, 1, 0, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
@@ -107,13 +107,15 @@ class Projectile {
     this.coords = { x, y }
     gameState.activeObjects.push(this)
   }
-  fly() {
+
+  fly(){
     this.coords.y += this.speed
     if (this.coords.y < 0) {
       this.die()
     }
   }
-  draw(){
+
+  draw() {
     buffer.ellipse(this.coords.x, this.coords.y, this.size)
   }
   die() {
@@ -159,7 +161,7 @@ class Enemy extends Character {
 }
 
 // initialise game
-var player = new Player(50, 550, 10)
+var player = new Player(50, 550, 5)
 
 for(var i = 0; i < 20; i++){
   setTimeout(() => {
