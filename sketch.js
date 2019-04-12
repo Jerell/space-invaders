@@ -1,4 +1,5 @@
-const UDLR_CODES = [38, 40, 37, 39, 32]
+// const UDLR_CODES = [38, 40, 37, 39, 32]
+const UDLR_CODES = [37, 39, 32]
 // initialises canvas
 function setup() {
   createCanvas(document.body.clientWidth, windowHeight);
@@ -12,6 +13,17 @@ function tryKeyPress(key) {
     keybinds[key]();
   } catch (error) {
     throw error
+  }
+}
+
+function drawObject(obj, xOffset = 0, yOffset = 0, size = 10){
+  var columns = 5;
+  for(var i = 0; i < obj.length; i++){
+    var x = i % columns
+    var y = Math.floor(i / columns)
+    if(obj[i]){
+      buffer.rect(x * size + xOffset, y * size + yOffset, size, size)
+    }
   }
 }
 

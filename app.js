@@ -13,10 +13,18 @@ let gameState = {
 
         let coords = this.activeObjects[i].coords;
 
-        buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size);
-        if (this.activeObjects[i] instanceof Projectile) {
-          this.activeObjects[i].fly();
-      
+        if (this.activeObjects[i] instanceof Enemy) {
+          this.activeObjects[i].move('r');
+          drawObject(this.activeObjects[i].shape, 
+                     this.activeObjects[i].coords.x,
+                     this.activeObjects[i].coords.y,
+                     5
+                    );
+        } else {
+          buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size);
+          if (this.activeObjects[i] instanceof Projectile) {
+            this.activeObjects[i].fly();
+          }
         }
       }
     }
@@ -31,11 +39,11 @@ var keybinds = {
 
 // Characters
 class Character {
-  constructor(x, y, v, health = 10) {
+  constructor(x, y, s, v, health = 10) {
     this.coords = { x, y };
     this.speed = v;
     this.health = health;
-    this.size = 50;
+    this.size = s;
   }
 
   move(direction) {
@@ -72,12 +80,12 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, v);
+    super(x, y, 50, v);
     gameState.activeObjects.push(this);
   }
   shoot() {
-    let bulat = new Projectile(this.coords.x, this.coords.y);
-    bulat.speed *= -1;
+    let bullet = new Projectile(this.coords.x, this.coords.y);
+    bullet.speed *= -1;
   }
 }
 
@@ -104,13 +112,24 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(v) {
-    super(0, 0, v, 3);
+    super(0, 0, 20, v, 3);
+    this.shape = [0, 1, 1, 1, 0, 
+                  1, 1, 1, 1, 1,
+                  1, 0, 1, 0, 1,
+                  0, 1, 0, 1, 0,
+                  1, 0, 1, 0, 1,
+                  1, 0, 0, 0, 1]
     gameState.activeObjects.push(this);
   }
   shoot() {
-    let bolet = new Projectile(this.x, this.y);
+    let bullet = new Projectile(this.x, this.y);
+  }
+  march(){
+    if()
+    this.move()
   }
 }
 
 // initialise game
 var player = new Player(50, 500, 30);
+var enemy = new Enemy(3)
