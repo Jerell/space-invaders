@@ -92,11 +92,15 @@ class Player extends Character {
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
+    this.ammo = 20
     gameState.activeObjects.push(this)
   }
   shoot() {
-    let bullet = new Projectile(this.coords.x + this.size * 2.5, this.coords.y - this.size * 2)
-    bullet.speed *= -1
+    if(this.ammo){
+      let bullet = new Projectile(this.coords.x + this.size * 2.5, this.coords.y - this.size * 2)
+      bullet.speed *= -1
+      this.ammo --
+    }
   }
 }
 
@@ -161,7 +165,7 @@ class Enemy extends Character {
 }
 
 // initialise game
-var player = new Player(50, 550, 5)
+var player = new Player(50, canvasDimensions.y - 50, 5)
 
 for(var i = 0; i < 20; i++){
   setTimeout(() => {

@@ -3,7 +3,7 @@ const UDLR_CODES = [37, 39, 32]
 
 var canvasDimensions = {
   x: 1000,
-  y: 600
+  y: innerHeight
 }
 
 // initialises canvas
