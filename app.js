@@ -76,7 +76,7 @@ let gameState = {
   },
   draw: function() {
     this.frame++
-    if(this.activeObjects.length == 1 && this.level < this.stages.length){
+    if(this.activeObjects.length == 1 && this.level < this.stages.length - 1){
       this.levelUp()
     }
     buffer.background(0)
