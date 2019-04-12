@@ -125,7 +125,6 @@ class Enemy extends Character {
     let bullet = new Projectile(this.x, this.y);
   }
   march(){
-    if()
     this.move()
   }
 }
