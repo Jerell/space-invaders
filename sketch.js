@@ -1,10 +1,16 @@
 // const UDLR_CODES = [38, 40, 37, 39, 32]
 const UDLR_CODES = [37, 39, 32]
+
+var canvasDimensions = {
+  x: 1000,
+  y: 600
+}
+
 // initialises canvas
 function setup() {
-  createCanvas(document.body.clientWidth, windowHeight);
+  createCanvas(canvasDimensions.x, canvasDimensions.y);
   background(0);
-  buffer = createGraphics(document.body.clientWidth, windowHeight);
+  buffer = createGraphics(canvasDimensions.x, canvasDimensions.y);
   buffer.background(0, 0, 0, 0);
 }
 

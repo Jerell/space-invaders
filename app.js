@@ -14,7 +14,7 @@ let gameState = {
         let coords = this.activeObjects[i].coords;
 
         if (this.activeObjects[i] instanceof Enemy) {
-          this.activeObjects[i].move('r');
+          this.activeObjects[i].march();
           drawObject(this.activeObjects[i].shape, 
                      this.activeObjects[i].coords.x,
                      this.activeObjects[i].coords.y,
@@ -111,8 +111,8 @@ class Projectile {
 }
 
 class Enemy extends Character {
-  constructor(v) {
-    super(0, 0, 20, v, 3);
+  constructor(v, s = 20) {
+    super(5, 5, s, v, 3);
     this.shape = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
                   1, 0, 1, 0, 1,
@@ -122,13 +122,33 @@ class Enemy extends Character {
     gameState.activeObjects.push(this);
   }
   shoot() {
-    let bullet = new Projectile(this.x, this.y);
+    let bullet = new Projectile(this.coords.x + this.size / 2, this.coords.y + this.size * 1.2);
+  }
+  isTouchingLeftWall(){
+    return this.coords.x <= 0
+  }
+  isTouchingRightWall(){
+    return this.coords.x + this.size >= canvasDimensions.x
   }
   march(){
-    this.move()
+    if(this.isTouchingRightWall() || this.isTouchingLeftWall()){
+      var newSpeed = -this.speed
+      this.speed = 0
+      this.coords.y += this.size * 1.2 * 1.5
+      this.speed = newSpeed
+    }
+    this.move('r');
+    if(Math.random() < 0.002){
+      this.shoot()
+    }
   }
 }
 
 // initialise game
-var player = new Player(50, 500, 30);
-var enemy = new Enemy(3)
+var player = new Player(50, 550, 30);
+
+for(var i = 0; i < 20; i++){
+  setTimeout(() => {
+    var enemy = new Enemy(3)
+  }, 500 * i);
+}
