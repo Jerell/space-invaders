@@ -3,6 +3,12 @@ let gameState = {
   score: 0,
   unpaused: true,
   frame: 0,
+  frameCount : function() {
+    this.frame ++
+    if(this.frame > 60){
+      this.frame = 1
+    }
+  },
   activeObjects: [],
   stages: [
     // Level 0
@@ -75,7 +81,7 @@ let gameState = {
     buffer.rect((canvasDimensions.x - width) / 2, 50, width, height)
   },
   draw: function() {
-    this.frame++
+    this.frameCount()
     if(this.activeObjects.length == 1 && this.level < this.stages.length - 1){
       this.levelUp()
     }
@@ -123,6 +129,11 @@ class Character {
     this.health = health
     this.size = s
     this.hitValue = val
+    this.shape = [0, 1, 1, 1, 0, 
+                  0, 1, 1, 1, 0,
+                  1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1,
+                  0, 1, 1, 1, 0]
   }
 
   draw(){
@@ -132,6 +143,17 @@ class Character {
       this.coords.y,
       this.size
     )
+  }
+
+  decay(){
+    for(let i = 0; i < this.shape.length; i++){
+      let threshold = 0.2
+      if(this.shape[i]){
+        if(Math.random() < threshold){
+          this.shape[i] = 0
+        }
+      }
+    }
   }
 
   move(direction) {
@@ -163,6 +185,7 @@ class Character {
 
   takeDamage(){
     this.health --
+    this.decay()
     gameState.score += this.hitValue
     if (!this.health){
       this.die()
@@ -209,7 +232,9 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, 10, v, 3, -150)
+    var maxHealth = 3
+    super(x, y, 10, v, maxHealth, -150)
+    this.maxHealth = maxHealth
     this.shape = [0, 0, 1, 0, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
