@@ -93,7 +93,6 @@ class Character {
   }
 
   takeDamage(){
-    buffer.fill(255, 0, 0)
     this.health --
     gameState.score += this.hitValue
     if (!this.health){
@@ -146,8 +145,8 @@ class Player extends Character {
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-    this.ammo = 5
-    this.maxAmmo = 5
+    this.ammo = 4
+    this.maxAmmo = 4
     gameState.activeObjects.push(this)
   }
   shoot() {
@@ -159,7 +158,7 @@ class Player extends Character {
   }
   regenAmmo() {
     if(this.ammo < this.maxAmmo){
-      this.ammo += 0.05
+      this.ammo += 0.04
     }
   }
 }
@@ -194,7 +193,7 @@ class Projectile {
 class Enemy extends Character {
   constructor(x = 5,
               y = 60,
-              v = 2, 
+              v = 3, 
               s = 5, 
               h = 1,
               val = 100
@@ -241,15 +240,13 @@ class Enemy extends Character {
 
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
-function newWave(){
-  if(gameState.score){
-    gameState.score += 100
-  }
-  if(gameState.unpaused){
+
+var stages = [
+  ()=>{
     for(var i = 0; i < 40; i++){
       var enemy = new Enemy(5 - 60 * i)
     }
-  }
-}
+  },
+]
 
-newWave()
+stages[0]()
