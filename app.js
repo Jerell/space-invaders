@@ -18,6 +18,7 @@ let gameState = {
           this.activeObjects[i].draw()
         } else if (this.activeObjects[i] instanceof Player) {
           this.activeObjects[i].draw()
+          this.activeObjects[i].regenAmmo()
         } else {
           buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size)
           if (this.activeObjects[i] instanceof Projectile) {
@@ -92,14 +93,20 @@ class Player extends Character {
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
-    this.ammo = 20
+    this.ammo = 5
+    this.maxAmmo = 5
     gameState.activeObjects.push(this)
   }
   shoot() {
-    if(this.ammo){
+    if(this.ammo > 1){
       let bullet = new Projectile(this.coords.x + this.size * 2.5, this.coords.y - this.size * 2)
       bullet.speed *= -1
       this.ammo --
+    }
+  }
+  regenAmmo() {
+    if(this.ammo < this.maxAmmo){
+      this.ammo += 0.05
     }
   }
 }
