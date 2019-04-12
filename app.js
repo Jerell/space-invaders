@@ -2,9 +2,14 @@ let gameState = {
   level: -1,
   score: 0,
   unpaused: true,
+  frame: 0,
   activeObjects: [],
   stages: [
     // Level 0
+    ( )=> {
+      var enemy = new Enemy(5)
+    },
+    // Level 1
     ( )=> {
       let offset = 0
       for(var i = 0; i < 10; i++){
@@ -12,21 +17,10 @@ let gameState = {
         var enemy = new Enemy(5 - offset)
       }
     },
-    // Level 1
+    // Level 2
     ( )=> {
       let offset = 0
-      for(var i = 0; i < 40; i++){
-        offset = 60 * i
-        var enemy = new Enemy(5 - offset)
-      }
-    },
-    // Level 2
-    () => {
-      let offset = 0
-      for(var i = 0; i < 50; i++){
-        if(i % 5 == 0){
-          offset += 200
-        }
+      for(var i = 0; i < 25; i++){
         offset = 60 * i
         var enemy = new Enemy(5 - offset)
       }
@@ -34,8 +28,19 @@ let gameState = {
     // Level 3
     () => {
       let offset = 0
-      for(var i = 0; i < 50; i++){
+      for(var i = 0; i < 40; i++){
+        offset = 60 * i
         if(i % 3 == 0){
+          offset += 200
+        }
+        var enemy = new Enemy(5 - offset)
+      }
+    },
+    // Level 4
+    () => {
+      let offset = 0
+      for(var i = 0; i < 50; i++){
+        if(i % 2 == 0){
           offset += 110
         }
         offset = 60 * i
@@ -63,13 +68,21 @@ let gameState = {
     }
     return healthIndicator
   },
+  drawAmmoIndicator: function() {
+    var height = 5
+    var maxWidth = 100
+    var width = maxWidth * player.ammo / player.maxAmmo
+    buffer.rect((canvasDimensions.x - width) / 2, 50, width, height)
+  },
   draw: function() {
-    if(this.activeObjects.length == 1){
+    this.frame++
+    if(this.activeObjects.length == 1 && this.level < this.stages.length){
       this.levelUp()
     }
     buffer.background(0)
     buffer.noStroke()
     buffer.fill(255)
+    this.drawAmmoIndicator()
     buffer.text(`Level: ${this.level} Score: ${this.score}`, canvasDimensions.x / 2, 20)
     buffer.fill(255, 0, 0)
     buffer.text(`${this.getHealthIndicator()}`, canvasDimensions.x / 2, 45)
@@ -248,7 +261,7 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(x = 5,
-              y = 60,
+              y = 70,
               v = 3, 
               s = 5, 
               h = 1,
@@ -256,12 +269,19 @@ class Enemy extends Character {
               ) {
     super(x, y, s, v, h, val)
     this.hasEnteredScreen = false
-    this.shape = [0, 1, 1, 1, 0, 
+    this.shape1 = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
                   1, 0, 1, 0, 1,
                   0, 1, 0, 1, 0,
                   1, 0, 1, 0, 1,
                   1, 0, 0, 0, 1]
+    this.shape2 = [0, 1, 1, 1, 0, 
+                  1, 1, 1, 1, 1,
+                  1, 0, 1, 0, 1,
+                  0, 1, 0, 1, 0,
+                  1, 0, 0, 0, 1,
+                  0, 1, 0, 1, 0]
+    this.shape = this.shape1
     gameState.activeObjects.push(this)
   }
   shoot() {
@@ -278,6 +298,13 @@ class Enemy extends Character {
     return this.coords.x + this.size * 6 >= canvasDimensions.x
   }
   march(){
+    if(gameState.frame % 30 == 0){
+      if(this.shape == this.shape1){
+        this.shape = this.shape2
+      } else {
+        this.shape = this.shape1
+      }
+    }
     if(!this.hasEnteredScreen){
       if(this.coords.x > 0){
         this.hasEnteredScreen = true
