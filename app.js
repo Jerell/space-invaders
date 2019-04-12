@@ -1,6 +1,6 @@
 let gameState = {
   score: 0,
-  paused: true,
+  unpaused: true,
   activeObjects: [],
   draw: function() {
     buffer.background(0)
@@ -30,7 +30,8 @@ let gameState = {
 var keybinds = {
   37: () => player.move("l"),
   39: () => player.move("r"),
-  32: () => player.shoot()
+  32: () => player.shoot(),
+  80: () => {gameState.unpaused = !gameState.unpaused;}
 }
 
 // Characters
@@ -52,25 +53,26 @@ class Character {
   }
 
   move(direction) {
+    var currentSpeed = gameState.unpaused ? this.speed : 0;
     var directions = {
       u: () => {
-        if (this.coords.y > this.speed) {
-          this.coords.y -= this.speed
+        if (this.coords.y > currentSpeed) {
+          this.coords.y -= currentSpeed
         }
       },
       d: () => {
-        if (this.coords.y < windowHeight - this.speed) {
-          this.coords.y += this.speed
+        if (this.coords.y < windowHeight - currentSpeed) {
+          this.coords.y += currentSpeed
         }
       },
       l: () => {
-        if (this.coords.x > this.speed) {
-          this.coords.x -= this.speed
+        if (this.coords.x > currentSpeed) {
+          this.coords.x -= currentSpeed
         }
       },
       r: () => {
-        if (this.coords.x < windowWidth - this.speed) {
-          this.coords.x += this.speed
+        if (this.coords.x < windowWidth - currentSpeed) {
+          this.coords.x += currentSpeed
         }
       }
     }
@@ -90,10 +92,10 @@ class Character {
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
       if (gameState.activeObjects[i] instanceof Projectile) {
         
-        var x = (this.shape.length - 1) % characterSize;
-        var y = Math.floor((this.shape.length - 1) / characterSize);
+        var x = (this.shape.length - 1) % characterSize + 1;
+        var y = Math.floor((this.shape.length - 1) / characterSize) + 1;
         
-        var bulletIsTravellingDown = gameState.activeObjects[i].speed > 0;
+        var bulletIsTravellingDown = gameState.activeObjects[i].speed >= 0;
 
         if (collidePointRect(gameState.activeObjects[i].coords.x,
                              gameState.activeObjects[i].coords.y,
@@ -122,7 +124,7 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, 5, v, 3)
+    super(x, y, 10, v, 3)
     this.shape = [0, 0, 1, 0, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
@@ -154,7 +156,8 @@ class Projectile {
   }
 
   fly(){
-    this.coords.y += this.speed
+    var currentSpeed = gameState.unpaused ? this.speed : 0;
+    this.coords.y += currentSpeed
     if (this.coords.y < 0) {
       this.die()
     }
@@ -173,7 +176,7 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(v, s = 5) {
-    super(5, 5, s, v, 3)
+    super(5, 5, s, v, 1)
     this.shape = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
                   1, 0, 1, 0, 1,
@@ -199,7 +202,7 @@ class Enemy extends Character {
       this.speed = newSpeed
     }
     this.move('r')
-    if(Math.random() < 0.01){
+    if(gameState.unpaused && Math.random() < 0.01){
       this.shoot()
     }
   }
@@ -208,8 +211,10 @@ class Enemy extends Character {
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
 
-for(var i = 0; i < 24; i++){
-  setTimeout(() => {
-    var enemy = new Enemy(2)
-  }, 500 * i)
+if(gameState.unpaused){
+  for(var i = 0; i < 25; i++){
+    setTimeout(() => {
+      var enemy = new Enemy(2)
+    }, 500 * i)
+  }
 }

@@ -1,5 +1,5 @@
 // const UDLR_CODES = [38, 40, 37, 39, 32]
-const UDLR_CODES = [37, 39, 32]
+const KEYS = [37, 39, 32, 80]
 const characterSize = 5;
 
 var canvasDimensions = {
@@ -33,6 +33,11 @@ function drawObject(obj, xOffset = 0, yOffset = 0, size = 10){
   }
 }
 
+function keyPressed() {
+  if (keyCode === 80) {
+    keybinds[80]();
+  }
+}
 
 //draw function
 function draw() {
@@ -40,7 +45,7 @@ function draw() {
 
   if(keyIsPressed){
     if(keyIsDown(keyCode)){
-      if(UDLR_CODES.indexOf(keyCode) > -1){
+      if(KEYS.indexOf(keyCode) > -1){
         tryKeyPress(keyCode);
       }
     }
