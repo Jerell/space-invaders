@@ -10,13 +10,12 @@ let gameState = {
       if (typeof this.activeObjects[i] == undefined) {
         continue
       } else {
-        let coords = this.activeObjects[i].coords
-
-
         this.activeObjects[i].draw()
         if (this.activeObjects[i] instanceof Enemy) {
+          this.activeObjects[i].hitDetection()
           this.activeObjects[i].march()
         } else if (this.activeObjects[i] instanceof Player) {
+          this.activeObjects[i].hitDetection()
           this.activeObjects[i].regenAmmo()
         } else {
           if (this.activeObjects[i] instanceof Projectile) {
@@ -76,6 +75,43 @@ class Character {
       }
     }
     directions[direction]()
+  }
+
+  takeDamage(){
+    buffer.fill(255, 0, 0)
+    this.health --
+    if (!this.health){
+      this.die()
+    }
+  }
+
+  hitDetection(){
+    
+    for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
+      if (gameState.activeObjects[i] instanceof Projectile) {
+        
+        var x = (this.shape.length - 1) % characterSize;
+        var y = Math.floor((this.shape.length - 1) / characterSize);
+        
+        var bulletIsTravellingDown = gameState.activeObjects[i].speed > 0;
+
+        if (collidePointRect(gameState.activeObjects[i].coords.x,
+                             gameState.activeObjects[i].coords.y,
+                             this.coords.x,
+                             this.coords.y,
+                             x * this.size,
+                             y * this.size
+                            )) {
+          if (this instanceof Player && bulletIsTravellingDown) {
+            gameState.activeObjects[i].die()
+            this.takeDamage();
+          } else if(this instanceof Enemy && !bulletIsTravellingDown){
+            gameState.activeObjects[i].die()
+            this.takeDamage();
+            }
+        }
+      }
+    } 
   }
 
   die() {
