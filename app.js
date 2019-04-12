@@ -208,7 +208,7 @@ class Enemy extends Character {
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
 
-for(var i = 0; i < 30; i++){
+for(var i = 0; i < 24; i++){
   setTimeout(() => {
     var enemy = new Enemy(2)
   }, 500 * i)
