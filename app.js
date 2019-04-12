@@ -12,11 +12,11 @@ let gameState = {
       } else {
         this.activeObjects[i].draw()
         if (this.activeObjects[i] instanceof Enemy) {
-          this.activeObjects[i].hitDetection()
           this.activeObjects[i].march()
-        } else if (this.activeObjects[i] instanceof Player) {
           this.activeObjects[i].hitDetection()
+        } else if (this.activeObjects[i] instanceof Player) {
           this.activeObjects[i].regenAmmo()
+          this.activeObjects[i].hitDetection()
         } else {
           if (this.activeObjects[i] instanceof Projectile) {
             this.activeObjects[i].fly()
@@ -208,7 +208,7 @@ class Enemy extends Character {
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
 
-for(var i = 0; i < 20; i++){
+for(var i = 0; i < 30; i++){
   setTimeout(() => {
     var enemy = new Enemy(2)
   }, 500 * i)
