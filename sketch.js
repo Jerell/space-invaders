@@ -10,9 +10,10 @@ var canvasDimensions = {
 // initialises canvas
 function setup() {
   createCanvas(canvasDimensions.x, canvasDimensions.y);
-  background(0);
   buffer = createGraphics(canvasDimensions.x, canvasDimensions.y);
-  buffer.background(0, 0, 0, 0);
+  buffer.background(0)
+  buffer.textSize(20)
+  buffer.textAlign(CENTER)
 }
 
 function tryKeyPress(key) {

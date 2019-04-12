@@ -6,6 +6,7 @@ let gameState = {
     buffer.background(0)
     buffer.noStroke()
     buffer.fill(255)
+    buffer.text(`Score: ${this.score}`, canvasDimensions.x / 2, 20)
     for (let i = this.activeObjects.length - 1; i >= 0; i--) {
       if (typeof this.activeObjects[i] == undefined) {
         continue
@@ -36,11 +37,12 @@ var keybinds = {
 
 // Characters
 class Character {
-  constructor(x, y, s, v, health = 1) {
+  constructor(x, y, s, v, health = 1, val = 0) {
     this.coords = { x, y }
     this.speed = v
     this.health = health
     this.size = s
+    this.hitValue = val
   }
 
   draw(){
@@ -82,8 +84,10 @@ class Character {
   takeDamage(){
     buffer.fill(255, 0, 0)
     this.health --
+    gameState.score += this.hitValue
     if (!this.health){
       this.die()
+      gameState.score += 2 * this.hitValue
     }
   }
 
@@ -116,6 +120,9 @@ class Character {
   }
 
   die() {
+    if(this instanceof Player){
+      gameState.unpaused = false
+    }
     let index = gameState.activeObjects.indexOf(this)
     gameState.activeObjects.splice(index, 1)
   }
@@ -123,7 +130,7 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, 10, v, 3)
+    super(x, y, 10, v, 3, -150)
     this.shape = [0, 0, 1, 0, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
@@ -175,12 +182,13 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(x = 5,
-              y = 5,
+              y = 35,
               v = 2, 
               s = 5, 
-              h = 1
+              h = 1,
+              val = 100
               ) {
-    super(x, y, s, v, h)
+    super(x, y, s, v, h, val)
     this.hasEnteredScreen = false
     this.shape = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
@@ -222,9 +230,15 @@ class Enemy extends Character {
 
 // initialise game
 var player = new Player(50, canvasDimensions.y - 50, 5)
-
-if(gameState.unpaused){
-  for(var i = 0; i < 30; i++){
-    var enemy = new Enemy(5 - 60 * i)
+function newWave(){
+  if(gameState.score){
+    gameState.score += 100
+  }
+  if(gameState.unpaused){
+    for(var i = 0; i < 40; i++){
+      var enemy = new Enemy(5 - 60 * i)
+    }
   }
 }
+
+newWave()
