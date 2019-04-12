@@ -6,7 +6,6 @@ let gameState = {
     buffer.background(0);
     buffer.noStroke();
     buffer.fill(255);
-    console.log(this.activeObjects)
     for (let i = this.activeObjects.length - 1; i >= 0; i--) {
       if (typeof this.activeObjects[i] == undefined) {
         continue;
@@ -84,7 +83,7 @@ class Player extends Character {
 
 class Projectile {
   constructor(x, y) {
-    this.speed = 1;
+    this.speed = 5;
     this.size = 10;
     this.coords = { x, y };
     gameState.activeObjects.push(this);
@@ -114,4 +113,4 @@ class Enemy extends Character {
 }
 
 // initialise game
-var player = new Player(50, 250, 30);
+var player = new Player(50, 500, 30);
