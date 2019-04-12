@@ -16,6 +16,8 @@ let gameState = {
         if (this.activeObjects[i] instanceof Enemy) {
           this.activeObjects[i].march()
           this.activeObjects[i].draw()
+        } else if (this.activeObjects[i] instanceof Player) {
+          this.activeObjects[i].draw()
         } else {
           buffer.ellipse(coords.x, coords.y, this.activeObjects[i].size)
           if (this.activeObjects[i] instanceof Projectile) {
@@ -85,7 +87,7 @@ class Character {
 
 class Player extends Character {
   constructor(x, y, v) {
-    super(x, y, 50, v)
+    super(x, y, 5, v)
     this.shape = [0, 0, 1, 0, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
@@ -93,7 +95,7 @@ class Player extends Character {
     gameState.activeObjects.push(this)
   }
   shoot() {
-    let bullet = new Projectile(this.coords.x, this.coords.y)
+    let bullet = new Projectile(this.coords.x + this.size * 2.5, this.coords.y - this.size * 2)
     bullet.speed *= -1
   }
 }
