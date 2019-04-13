@@ -1,5 +1,4 @@
-// const UDLR_CODES = [38, 40, 37, 39, 32]
-const KEYS = [37, 39, 32, 80]
+const KEYS = [37, 39, 32, 38, 80]
 const CHARACTER_IMAGE_COLUMNS = 5;
 
 var canvasDimensions = {

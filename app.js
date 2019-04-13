@@ -119,6 +119,7 @@ var keybinds = {
   37: () => player.move("l"),
   39: () => player.move("r"),
   32: () => player.shoot(),
+  38: () => player.shoot(),
   80: () => {gameState.unpaused = !gameState.unpaused;}
 }
 
@@ -246,7 +247,7 @@ class Player extends Character {
     gameState.activeObjects.push(this)
   }
   shoot() {
-    if(this.ammo > 1){
+    if(this.ammo > 1 && gameState.unpaused){
       let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
       bullet.speed *= -1.8
       this.ammo --
