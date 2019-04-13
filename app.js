@@ -14,8 +14,8 @@ let gameState = {
     // Level 0
     ( )=> {
       var enemy = new Enemy()
-      for(let i = 0; i < 3; i ++){
-        var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 1) * 200 , Math.floor(3 * canvasDimensions.y / 4))
+      for(let i = 0; i < 6; i ++){
+        var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 3) * 200 , Math.floor(3 * canvasDimensions.y / 4))
       }
     },
     // Level 1
@@ -349,8 +349,7 @@ class Enemy extends Character {
       this.speed *= -1
     }
     this.move('r')
-    if(gameState.unpaused && Math.random() < 0.003 * this.getDistanceMultiplier()){
-      console.log(0.005 * this.getDistanceMultiplier())
+    if(gameState.unpaused && Math.random() < 0.002 * this.getDistanceMultiplier()){
       this.shoot()
     }
   }
