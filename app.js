@@ -13,9 +13,9 @@ let gameState = {
   stages: [
     // Level 0
     ( )=> {
-      var enemy = new Enemy(5)
-      for(let i = 0; i < 10; i ++){
-        var barrierBlock = new BarrierBlock((canvasDimensions.x + 50) / 2 - 5 * i, canvasDimensions.y / 2)
+      var enemy = new Enemy()
+      for(let i = 0; i < 20; i ++){
+        var barrierBlock = new BarrierBlock((canvasDimensions.x + 96) / 2 - 5 * i, canvasDimensions.y / 2)
       }
     },
     // Level 1
@@ -351,51 +351,77 @@ class Enemy extends Character {
 
 class BarrierBlock {
   constructor(x, y, s = 5, health = 10) {
-    this.coords = { x, y }
-    this.maxHealth = health
-    this.health = health
-    this.size = s
-    console.log(this.coords)
-    gameState.activeObjects.push(this)
+    this.coords = { x, y };
+    this.maxHealth = health;
+    this.health = health;
+    this.size = s;
+    gameState.activeObjects.push(this);
   }
 
   draw() {
-    buffer.fill(255 * this.health / this.maxHealth)
+    buffer.fill((255 * this.health) / this.maxHealth);
     buffer.rect(this.coords.x, this.coords.y, this.size, this.size);
-    buffer.fill(255)
-    this.hitDetection()
+    buffer.fill(255);
+    this.hitDetection();
   }
 
-  takeDamage(){
-    this.health --
-    if (!this.health){
-      this.die()
+  takeDamage(amount = 1) {
+    this.health -= amount;
+    if (this.health < 1) {
+      this.die();
     }
   }
 
   die() {
-    if(this instanceof Player){
-      gameState.unpaused = false
+    if (this instanceof Player) {
+      gameState.unpaused = false;
     }
-    let index = gameState.activeObjects.indexOf(this)
-    gameState.activeObjects.splice(index, 1)
+    let index = gameState.activeObjects.indexOf(this);
+    gameState.activeObjects.splice(index, 1);
   }
 
   hitDetection() {
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
-      if (gameState.activeObjects[i] instanceof Projectile) {
-        if (
-          collidePointRect(
-            gameState.activeObjects[i].coords.x,
-            gameState.activeObjects[i].coords.y,
-            this.coords.x,
-            this.coords.y,
-            this.size,
-            this.size
-          )
-        ) {
-          gameState.activeObjects[i].die();
-          this.takeDamage();
+      if (
+        gameState.activeObjects[i] instanceof Projectile ||
+        gameState.activeObjects[i] instanceof Enemy
+      ) {
+        if (gameState.activeObjects[i] instanceof Projectile) {
+          if (
+            collidePointRect(
+              gameState.activeObjects[i].coords.x,
+              gameState.activeObjects[i].coords.y,
+              this.coords.x,
+              this.coords.y,
+              this.size,
+              this.size
+            )
+          ) {
+            if (gameState.activeObjects[i] instanceof Projectile) {
+              this.takeDamage(gameState.activeObjects[i].speed < 0 ? 2 : 1);
+              if (gameState.activeObjects[i]) {
+                // I shouldn't need this but it was somehow becoming undefined
+                gameState.activeObjects[i].die();
+              }
+            }
+          }
+        } else if (gameState.activeObjects[i] instanceof Enemy) {
+          if (
+            collideRectRect(
+              this.coords.x,
+              this.coords.y,
+              this.size,
+              this.size,
+              gameState.activeObjects[i].coords.x,
+              gameState.activeObjects[i].coords.y,
+              gameState.activeObjects[i].size * CHARACTER_IMAGE_COLUMNS,
+              (gameState.activeObjects[i].size *
+                gameState.activeObjects[i].shape.length) /
+                CHARACTER_IMAGE_COLUMNS
+            )
+          ) {
+            this.die();
+          }
         }
       }
     }
@@ -403,4 +429,4 @@ class BarrierBlock {
 }
 
 // initialise game
-var player = new Player(50, canvasDimensions.y - 50, 5);
+var player = new Player(canvasDimensions.x / 2 - 25, canvasDimensions.y - 50, 5);
