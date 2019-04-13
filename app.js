@@ -313,6 +313,11 @@ class Enemy extends Character {
     this.shape = this.shape1
     gameState.activeObjects.push(this)
   }
+  getDistanceMultiplier(){
+    var dist = Math.abs(player.coords.x - this.coords.x)
+    var fractionOfMax = 2 * dist / canvasDimensions.x
+    return (1 - fractionOfMax) * 5
+  }
   shoot() {
     if(!this.hasEnteredScreen){
       return
@@ -344,7 +349,8 @@ class Enemy extends Character {
       this.speed *= -1
     }
     this.move('r')
-    if(gameState.unpaused && Math.random() < 0.01){
+    if(gameState.unpaused && Math.random() < 0.003 * this.getDistanceMultiplier()){
+      console.log(0.005 * this.getDistanceMultiplier())
       this.shoot()
     }
   }
