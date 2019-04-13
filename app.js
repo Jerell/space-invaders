@@ -14,8 +14,8 @@ let gameState = {
     // Level 0
     ( )=> {
       var enemy = new Enemy()
-      for(let i = 0; i < 20; i ++){
-        var barrierBlock = new BarrierBlock((canvasDimensions.x + 96) / 2 - 5 * i, canvasDimensions.y / 2)
+      for(let i = 0; i < 3; i ++){
+        var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 1) * 200 , Math.floor(3 * canvasDimensions.y / 4))
       }
     },
     // Level 1
@@ -423,6 +423,25 @@ class BarrierBlock {
             this.die();
           }
         }
+      }
+    }
+  }
+}
+
+class Barrier {
+  constructor(x, y, s = 20, cols = 7){
+    this.coords = {x, y}
+    this.columns = cols
+    this.size = s
+    this.shape = [0, 0, 1, 1, 1, 0, 0,
+                  0, 1, 1, 1, 1, 1, 0,
+                  1, 1, 1, 0, 1, 1, 1,
+                  1, 1, 0, 0, 0, 1, 1]
+    for(var i = 0; i < this.shape.length; i++){
+      var x = i % cols
+      var y = Math.floor(i / cols)
+      if(this.shape[i]){
+        var block = new BarrierBlock(x * this.size + this.coords.x, y * this.size + this.coords.y, this.size, this.size)
       }
     }
   }
