@@ -14,6 +14,9 @@ let gameState = {
     // Level 0
     ( )=> {
       var enemy = new Enemy(5)
+      for(let i = 0; i < 10; i ++){
+        var barrierBlock = new BarrierBlock((canvasDimensions.x + 50) / 2 - 5 * i, canvasDimensions.y / 2)
+      }
     },
     // Level 1
     ( )=> {
@@ -82,7 +85,7 @@ let gameState = {
   },
   draw: function() {
     this.frameCount()
-    if(this.activeObjects.length == 1 && this.level < this.stages.length - 1){
+    if(this.activeObjects.filter(object => object instanceof Enemy || object instanceof Projectile).length == 0 && this.level < this.stages.length - 1){
       this.levelUp()
     }
     buffer.background(0)
@@ -100,10 +103,8 @@ let gameState = {
         this.activeObjects[i].draw()
         if (this.activeObjects[i] instanceof Enemy) {
           this.activeObjects[i].march()
-          this.activeObjects[i].hitDetection()
         } else if (this.activeObjects[i] instanceof Player) {
           this.activeObjects[i].regenAmmo()
-          this.activeObjects[i].hitDetection()
         } else {
           if (this.activeObjects[i] instanceof Projectile) {
             this.activeObjects[i].fly()
@@ -143,6 +144,7 @@ class Character {
       this.coords.y,
       this.size
     )
+    this.hitDetection()
   }
 
   decay(){
@@ -252,7 +254,7 @@ class Player extends Character {
     }
   }
   regenAmmo() {
-    if(this.ammo < this.maxAmmo){
+    if(this.ammo < this.maxAmmo && gameState.unpaused){
       this.ammo += 0.04
     }
   }
@@ -347,5 +349,58 @@ class Enemy extends Character {
   }
 }
 
+class BarrierBlock {
+  constructor(x, y, s = 5, health = 10) {
+    this.coords = { x, y }
+    this.maxHealth = health
+    this.health = health
+    this.size = s
+    console.log(this.coords)
+    gameState.activeObjects.push(this)
+  }
+
+  draw() {
+    buffer.fill(255 * this.health / this.maxHealth)
+    buffer.rect(this.coords.x, this.coords.y, this.size, this.size);
+    buffer.fill(255)
+    this.hitDetection()
+  }
+
+  takeDamage(){
+    this.health --
+    if (!this.health){
+      this.die()
+    }
+  }
+
+  die() {
+    if(this instanceof Player){
+      gameState.unpaused = false
+    }
+    let index = gameState.activeObjects.indexOf(this)
+    gameState.activeObjects.splice(index, 1)
+  }
+
+  hitDetection() {
+    for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
+      if (gameState.activeObjects[i] instanceof Projectile) {
+        if (
+          collidePointRect(
+            gameState.activeObjects[i].coords.x,
+            gameState.activeObjects[i].coords.y,
+            this.coords.x,
+            this.coords.y,
+            this.size,
+            this.size
+          )
+        ) {
+          gameState.activeObjects[i].die();
+          this.takeDamage();
+        }
+      }
+    }
+  }
+}
+
 // initialise game
-var player = new Player(50, canvasDimensions.y - 50, 5)
+var player = new Player(50, canvasDimensions.y - 50, 5);
