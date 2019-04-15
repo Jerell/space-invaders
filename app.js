@@ -16,6 +16,7 @@ let gameState = {
       var play = new MainText('PLAY', 0, 0, 180)
       var instruction = new MainText('move: arrow keys | shoot: up, space', 0, 30, 180)
       var enemy = new Enemy()
+      var po = new PowerUp(1)
       for(let i = 0; i < 6; i ++){
         var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 3) * 200 , Math.floor(3 * canvasDimensions.y / 4))
       }
@@ -142,6 +143,7 @@ class Character {
                   1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1,
                   0, 1, 1, 1, 0]
+    gameState.activeObjects.push(this)
   }
 
   draw(){
@@ -156,7 +158,7 @@ class Character {
 
   decay(){
     for(let i = 0; i < this.shape.length; i++){
-      let threshold = 0.2
+      let threshold = 0.15
       if(this.shape[i]){
         if(Math.random() < threshold){
           this.shape[i] = 0
@@ -176,6 +178,8 @@ class Character {
       d: () => {
         if (this.coords.y < canvasDimensions.y - currentSpeed) {
           this.coords.y += currentSpeed
+        } else {
+          this.die()
         }
       },
       l: () => {
@@ -221,10 +225,28 @@ class Character {
           if (this instanceof Player && bulletIsTravellingDown) {
             gameState.activeObjects[i].die()
             this.takeDamage();
-          } else if(this instanceof Enemy && !bulletIsTravellingDown){
+          } else if(this instanceof Enemy && !bulletIsTravellingDown || this instanceof PowerUp && !bulletIsTravellingDown){
             gameState.activeObjects[i].die()
             this.takeDamage();
           }
+        }
+      } else if(this instanceof Player && gameState.activeObjects[i] instanceof PowerUp){
+        if (
+          collideRectRect(
+            this.coords.x,
+            this.coords.y,
+            this.size * CHARACTER_IMAGE_COLUMNS,
+            (this.size * this.shape.length) / CHARACTER_IMAGE_COLUMNS,
+            gameState.activeObjects[i].coords.x,
+            gameState.activeObjects[i].coords.y,
+            gameState.activeObjects[i].size * CHARACTER_IMAGE_COLUMNS,
+            (gameState.activeObjects[i].size *
+              gameState.activeObjects[i].shape.length) /
+              CHARACTER_IMAGE_COLUMNS
+          )
+        ) {
+          gameState.activeObjects[i].collect();
+          gameState.activeObjects[i].die();
         }
       }
     } 
@@ -252,7 +274,13 @@ class Player extends Character {
                   1, 1, 1, 1, 1]
     this.ammo = 8
     this.maxAmmo = 10
-    gameState.activeObjects.push(this)
+    this.r = 255
+    this.g = 255
+    this.b = 255
+  }
+  draw(){
+    buffer.fill(this.r, this.g, this.b)
+    super.draw()
   }
   shoot() {
     if(this.ammo > 1 && gameState.unpaused){
@@ -266,6 +294,43 @@ class Player extends Character {
     if(this.ammo < this.maxAmmo && gameState.unpaused){
       this.ammo += 0.04
     }
+  }
+  endPower(){
+    this.r = 255
+    this.g = 255
+    this.b = 255
+  }
+}
+
+class PowerUp extends Character {
+  constructor(){
+    var colPositions = [
+      185,
+      385,
+      585,
+      785
+    ]
+    var xPos = colPositions[Math.floor(Math.random() * colPositions.length)]
+    super(xPos, 70, 5, 2, 1, 100)
+    this.shape = [0, 1, 1, 1, 0, 
+                  0, 1, 1, 1, 0,
+                  1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1,
+                  0, 1, 1, 1, 0]
+    this.r = Math.random() * 255
+    this.g = Math.random() * 255
+    this.b = Math.random() * 255
+  }
+  draw(){
+    buffer.fill(this.r, this.g, this.b)
+    super.draw()
+    this.move('d')
+  }
+  collect(){
+    player.r = this.r
+    player.g = this.g
+    player.b = this.b
+    player.health ++
   }
 }
 
@@ -319,7 +384,10 @@ class Enemy extends Character {
                   1, 0, 0, 0, 1,
                   0, 1, 0, 1, 0]
     this.shape = this.shape1
-    gameState.activeObjects.push(this)
+  }
+  draw(){
+    buffer.fill(255)
+    super.draw()
   }
   getDistanceMultiplier(){
     var dist = Math.abs(player.coords.x - this.coords.x)
