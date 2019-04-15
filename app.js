@@ -176,7 +176,7 @@ class Projectile {
 
 class Enemy extends Character {
   constructor(v, s = 5) {
-    super(5, 5, s, v, 1)
+    super(x = 5, y = 5, s, v, 1)
     this.shape = [0, 1, 1, 1, 0, 
                   1, 1, 1, 1, 1,
                   1, 0, 1, 0, 1,
@@ -195,7 +195,7 @@ class Enemy extends Character {
     return this.coords.x + this.size * 6 >= canvasDimensions.x
   }
   march(){
-    if(this.isTouchingRightWall() || this.isTouchingLeftWall()){
+    if(this.isTouchingRightWall() || (this.isTouchingLeftWall() && this.coords.y > Math.floor(this.shape.length / this.size))){
       var newSpeed = -this.speed
       this.speed = 0
       this.coords.y += this.size * 8
