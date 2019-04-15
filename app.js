@@ -16,7 +16,6 @@ let gameState = {
       var play = new MainText('PLAY', 0, 0, 180)
       var instruction = new MainText('move: arrow keys | shoot: up, space', 0, 30, 180)
       var enemy = new Enemy()
-      var po = new PowerUp(1)
       for(let i = 0; i < 6; i ++){
         var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 3) * 200 , Math.floor(3 * canvasDimensions.y / 4))
       }
@@ -68,8 +67,8 @@ let gameState = {
     this.level ++
     if(this.level > 0){
       this.score += 1000
-      if(player.health < 3){
-        player.health ++
+      if(player.health < 4 && this.level + 1 < this.stages.length){
+        var po = new PowerUp()
       }
     }
     if(this.level < this.stages.length){
