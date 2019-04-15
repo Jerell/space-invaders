@@ -92,7 +92,7 @@ let gameState = {
     buffer.noStroke()
     buffer.fill(255)
     this.drawAmmoIndicator()
-    buffer.text(`Level: ${this.level} Score: ${this.score}`, canvasDimensions.x / 2, 20)
+    buffer.text(`Level: ${this.level} Score: ${this.score}`, canvasDimensions.x / 2, 25)
     buffer.fill(255, 0, 0)
     buffer.text(`${this.getHealthIndicator()}`, canvasDimensions.x / 2, 45)
     buffer.fill(255)

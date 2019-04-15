@@ -12,6 +12,7 @@ function setup() {
   buffer = createGraphics(canvasDimensions.x, canvasDimensions.y);
   buffer.background(0)
   buffer.textSize(20)
+  buffer.textFont("\'Press Start 2P\'")
   buffer.textAlign(CENTER)
 }
 
