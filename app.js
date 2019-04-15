@@ -13,6 +13,8 @@ let gameState = {
   stages: [
     // Level 0
     ( )=> {
+      var play = new MainText('PLAY', 0, 0, 180)
+      var instruction = new MainText('move: arrow keys | shoot: up, space', 0, 30, 180)
       var enemy = new Enemy()
       for(let i = 0; i < 6; i ++){
         var barrier = new Barrier((canvasDimensions.x - 140) / 2 + (i - 3) * 200 , Math.floor(3 * canvasDimensions.y / 4))
@@ -56,6 +58,10 @@ let gameState = {
         var enemy = new Enemy(5 - offset)
       }
     },
+    // End
+    () => {
+      var end = new MainText('GAME OVER', 0, 0, 180)
+    },
   ],
   levelUp: function() {
     this.level ++
@@ -85,7 +91,7 @@ let gameState = {
   },
   draw: function() {
     this.frameCount()
-    if(this.activeObjects.filter(object => object instanceof Enemy || object instanceof Projectile).length == 0 && this.level < this.stages.length - 1){
+    if(this.activeObjects.filter(object => object instanceof Enemy || object instanceof Projectile || object instanceof MainText).length == 0 && this.level < this.stages.length - 1){
       this.levelUp()
     }
     buffer.background(0)
@@ -227,6 +233,8 @@ class Character {
   die() {
     if(this instanceof Player){
       gameState.unpaused = false
+      // End
+      var end = new MainText('GAME OVER', 0, 0, 360)
     }
     let index = gameState.activeObjects.indexOf(this)
     gameState.activeObjects.splice(index, 1)
@@ -355,6 +363,8 @@ class Enemy extends Character {
   }
 }
 
+
+// Game objects
 class BarrierBlock {
   constructor(x, y, s = 5, health = 10) {
     this.coords = { x, y };
@@ -449,6 +459,36 @@ class Barrier {
       if(this.shape[i]){
         var block = new BarrierBlock(x * this.size + this.coords.x, y * this.size + this.coords.y, this.size, this.size)
       }
+    }
+  }
+}
+
+class MainText {
+  constructor(text, xOffset = 0, yOffset = 0, additionalFrames = 0){
+    this.text = text
+    this.xOffset = xOffset
+    this.yOffset = yOffset
+    this.displayFrames = 120 + additionalFrames
+    gameState.activeObjects.push(this)
+  }
+
+  draw(){
+    buffer.fill(255)
+    buffer.text(this.text, canvasDimensions.x / 2 + this.xOffset, canvasDimensions.y / 2 + this.yOffset)
+    if(gameState.unpaused){
+      this.fade()
+    }
+  }
+  
+  die() {
+    let index = gameState.activeObjects.indexOf(this)
+    gameState.activeObjects.splice(index, 1)
+  }
+
+  fade() {
+    this.displayFrames --
+    if(this.displayFrames < 1){
+      this.die()
     }
   }
 }
