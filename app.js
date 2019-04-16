@@ -139,6 +139,7 @@ class Character {
     this.health = health
     this.size = s
     this.hitValue = val
+    this.explosiveShot = false
     this.shape = [0, 1, 1, 1, 0, 
                   0, 1, 1, 1, 0,
                   1, 1, 1, 1, 1,
@@ -290,15 +291,33 @@ class Player extends Character {
     this.r = 255
     this.g = 255
     this.b = 255
+    this.powerUpActive = false
+    this.powerUpStartTime = null
+    this.weapons = [
+      // standard
+      () => {
+        let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
+        bullet.speed *= -1.5
+      },
+      // bomb
+      () => {
+        let bullet = new Bomb(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
+        bullet.speed *= -1.8
+      }
+    ]
   }
   draw(){
+    if(this.powerUpActive){
+      if(gameState.time - this.powerUpStartTime > 3000){
+        this.endPower()
+      }
+    }
     buffer.fill(this.r, this.g, this.b)
     super.draw()
   }
   shoot() {
     if(this.ammo > 1 && gameState.unpaused){
-      let bullet = new Bomb(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
-      bullet.speed *= -1.8
+      this.weapons[this.powerUpActive ? 1 : 0]()
       this.ammo --
       gameState.score -= 3 ** gameState.level
     }
@@ -312,6 +331,8 @@ class Player extends Character {
     this.r = 255
     this.g = 255
     this.b = 255
+    this.powerUpActive = false
+    this.powerUpStartTime = null
   }
 }
 
@@ -343,6 +364,8 @@ class PowerUp extends Character {
     player.r = this.r
     player.g = this.g
     player.b = this.b
+    player.powerUpActive = true
+    player.powerUpStartTime = gameState.time
     player.health ++
   }
 }
