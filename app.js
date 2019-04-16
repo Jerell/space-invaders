@@ -403,7 +403,6 @@ class Bomb extends Projectile {
   }
   explode() {
     this.size = (gameState.time - this.collisionTime) * 0.5
-    console.log(this.size)
   }
   die(){
     if(!this.collisionTime) this.collisionTime = gameState.time
