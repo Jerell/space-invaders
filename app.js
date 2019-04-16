@@ -1,14 +1,9 @@
 let gameState = {
+  startTime: null,
   level: -1,
   score: 0,
   unpaused: true,
-  frame: 0,
-  frameCount : function() {
-    this.frame ++
-    if(this.frame > 60){
-      this.frame = 1
-    }
-  },
+  time: 0,
   activeObjects: [],
   stages: [
     // Level 0
@@ -90,23 +85,30 @@ let gameState = {
     buffer.rect((canvasDimensions.x - width) / 2, 50, width, height)
   },
   draw: function() {
-    this.frameCount()
+
     if(this.activeObjects.filter(object => object instanceof Enemy || object instanceof Projectile || object instanceof MainText).length == 0 && this.level < this.stages.length - 1){
       this.levelUp()
     }
+
     buffer.background(0)
     buffer.noStroke()
     buffer.fill(255)
     this.drawAmmoIndicator()
+
     buffer.text(`Level: ${this.level} Score: ${this.score}`, canvasDimensions.x / 2, 25)
+    
     buffer.fill(255, 0, 0)
     buffer.text(`${this.getHealthIndicator()}`, canvasDimensions.x / 2, 45)
+    
     buffer.fill(255)
+    
     for (let i = this.activeObjects.length - 1; i >= 0; i--) {
       if (typeof this.activeObjects[i] == undefined) {
         continue
       } else {
+    
         this.activeObjects[i].draw()
+    
         if (this.activeObjects[i] instanceof Enemy) {
           this.activeObjects[i].march()
         } else if (this.activeObjects[i] instanceof Player) {
@@ -209,23 +211,35 @@ class Character {
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
       if (gameState.activeObjects[i] instanceof Projectile) {
         
-        var x = (this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS + 1;
-        var y = Math.floor((this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS) + 1;
-        
-        var bulletIsTravellingDown = gameState.activeObjects[i].speed >= 0;
+        var x = ((this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS) + 1;
+        var y =
+          Math.floor(
+            (this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS
+          ) + 1;
 
-        if (collidePointRect(gameState.activeObjects[i].coords.x,
-                             gameState.activeObjects[i].coords.y,
-                             this.coords.x,
-                             this.coords.y,
-                             x * this.size,
-                             y * this.size
-                            )) {
+        var bulletIsTravellingDown =
+          gameState.activeObjects[i].speed >= 0;
+
+        if (
+          collideRectCircle(
+            this.coords.x,
+            this.coords.y,
+            x * this.size,
+            y * this.size,
+            gameState.activeObjects[i].coords.x,
+            gameState.activeObjects[i].coords.y,
+            gameState.activeObjects[i].size
+          )
+        ) {
+          console.log("collision");
           if (this instanceof Player && bulletIsTravellingDown) {
-            gameState.activeObjects[i].die()
+            gameState.activeObjects[i].die();
             this.takeDamage();
-          } else if(this instanceof Enemy && !bulletIsTravellingDown || this instanceof PowerUp && !bulletIsTravellingDown){
-            gameState.activeObjects[i].die()
+          } else if (
+            (this instanceof Enemy && !bulletIsTravellingDown) ||
+            (this instanceof PowerUp && !bulletIsTravellingDown)
+          ) {
+            gameState.activeObjects[i].die();
             this.takeDamage();
           }
         }
@@ -248,7 +262,7 @@ class Character {
           gameState.activeObjects[i].die();
         }
       }
-    } 
+    }
   }
 
   die() {
@@ -283,7 +297,7 @@ class Player extends Character {
   }
   shoot() {
     if(this.ammo > 1 && gameState.unpaused){
-      let bullet = new Projectile(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
+      let bullet = new Bomb(this.coords.x + this.size * CHARACTER_IMAGE_COLUMNS / 2, this.coords.y - this.size * 2)
       bullet.speed *= -1.8
       this.ammo --
       gameState.score -= 3 ** gameState.level
@@ -334,9 +348,9 @@ class PowerUp extends Character {
 }
 
 class Projectile {
-  constructor(x, y) {
+  constructor(x, y, s = 10) {
     this.speed = 5
-    this.size = 10
+    this.size = s
     this.coords = { x, y }
     gameState.activeObjects.push(this)
   }
@@ -360,14 +374,30 @@ class Projectile {
   }
 }
 
+class Bomb extends Projectile {
+  constructor(x, y, s){
+    super(x, y, s)
+    this.collisionTime = null
+  }
+  explode() {
+    this.size = (gameState.time - this.collisionTime) * 0.5
+    console.log(this.size)
+  }
+  die(){
+    if(!this.collisionTime) this.collisionTime = gameState.time
+    this.speed = 0
+    this.explode()
+  }
+  draw(){
+    super.draw()
+    if(this.collisionTime && gameState.time - this.collisionTime > 500){
+      super.die()
+    }
+  }
+}
+
 class Enemy extends Character {
-  constructor(x = 5,
-              y = 70,
-              v = 3, 
-              s = 5, 
-              h = 1,
-              val = 100
-              ) {
+  constructor(x = 5,y = 70,v = 3, s = 5, h = 1,val = 100) {
     super(x, y, s, v, h, val)
     this.hasEnteredScreen = false
     this.shape1 = [0, 1, 1, 1, 0, 
@@ -407,13 +437,12 @@ class Enemy extends Character {
     return this.coords.x + this.size * 6 >= canvasDimensions.x
   }
   march(){
-    if(gameState.frame % 30 == 0){
-      if(this.shape == this.shape1){
-        this.shape = this.shape2
-      } else {
-        this.shape = this.shape1
-      }
+    if(Math.floor(gameState.time) % 1000 > 500){
+      this.shape = this.shape2 
+    } else{
+      this.shape = this.shape1
     }
+
     if(!this.hasEnteredScreen){
       if(this.coords.x > 0){
         this.hasEnteredScreen = true
@@ -464,6 +493,7 @@ class BarrierBlock {
   }
 
   hitDetection() {
+    buffer.ellipseMode(CORNER)
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
       if (
         gameState.activeObjects[i] instanceof Projectile ||
@@ -471,13 +501,14 @@ class BarrierBlock {
       ) {
         if (gameState.activeObjects[i] instanceof Projectile) {
           if (
-            collidePointRect(
-              gameState.activeObjects[i].coords.x,
-              gameState.activeObjects[i].coords.y,
+            collideRectCircle(
               this.coords.x,
               this.coords.y,
               this.size,
-              this.size
+              this.size,
+              gameState.activeObjects[i].coords.x,
+              gameState.activeObjects[i].coords.y,
+              gameState.activeObjects[i].size,
             )
           ) {
             if (gameState.activeObjects[i] instanceof Projectile) {
@@ -508,6 +539,7 @@ class BarrierBlock {
         }
       }
     }
+    buffer.ellipseMode(CENTER)
   }
 }
 
@@ -562,3 +594,11 @@ class MainText {
 
 // initialise game
 var player = new Player(canvasDimensions.x / 2 - 25, canvasDimensions.y - 50, 5);
+
+var timeCount = function(timestamp) {
+  if (!gameState.startTime) gameState.startTime = timestamp
+  gameState.time = Math.floor(timestamp - gameState.startTime)
+  requestAnimationFrame(timeCount)
+}
+
+requestAnimationFrame(timeCount)
