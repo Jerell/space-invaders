@@ -218,8 +218,8 @@ class Character {
             (this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS
           ) + 1;
 
-        var bulletIsTravellingDown =
-          gameState.activeObjects[i].speed >= 0
+        var bulletSpeed = gameState.activeObjects[i].speed
+        var bulletCanHurtPlayer = bulletSpeed >= 0
 
         if (
           collideRectCircle(
@@ -232,12 +232,12 @@ class Character {
             gameState.activeObjects[i].size
           )
         ) {
-          if (this instanceof Player && bulletIsTravellingDown) {
+          if (this instanceof Player && bulletCanHurtPlayer) {
             gameState.activeObjects[i].die()
             this.takeDamage()
           } else if (
-            (this instanceof Enemy && !bulletIsTravellingDown) ||
-            (this instanceof PowerUp && !bulletIsTravellingDown)
+            (this instanceof Enemy && bulletSpeed <= 0) ||
+            (this instanceof PowerUp && !bulletCanHurtPlayer)
           ) {
             gameState.activeObjects[i].die()
             this.takeDamage()
@@ -402,7 +402,7 @@ class Bomb extends Projectile {
     this.collisionTime = null
   }
   explode() {
-    this.size = (gameState.time - this.collisionTime) * 0.5
+    this.size = (gameState.time - this.collisionTime) * 0.6
   }
   die(){
     if(!this.collisionTime) this.collisionTime = gameState.time
