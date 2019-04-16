@@ -212,14 +212,14 @@ class Character {
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
       if (gameState.activeObjects[i] instanceof Projectile) {
         
-        var x = ((this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS) + 1;
+        var x = ((this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS) + 1
         var y =
           Math.floor(
             (this.shape.length - 1) / CHARACTER_IMAGE_COLUMNS
           ) + 1;
 
         var bulletIsTravellingDown =
-          gameState.activeObjects[i].speed >= 0;
+          gameState.activeObjects[i].speed >= 0
 
         if (
           collideRectCircle(
@@ -232,16 +232,15 @@ class Character {
             gameState.activeObjects[i].size
           )
         ) {
-          console.log("collision");
           if (this instanceof Player && bulletIsTravellingDown) {
-            gameState.activeObjects[i].die();
-            this.takeDamage();
+            gameState.activeObjects[i].die()
+            this.takeDamage()
           } else if (
             (this instanceof Enemy && !bulletIsTravellingDown) ||
             (this instanceof PowerUp && !bulletIsTravellingDown)
           ) {
-            gameState.activeObjects[i].die();
-            this.takeDamage();
+            gameState.activeObjects[i].die()
+            this.takeDamage()
           }
         }
       } else if(this instanceof Player && gameState.activeObjects[i] instanceof PowerUp){
@@ -460,11 +459,9 @@ class Enemy extends Character {
     return this.coords.x + this.size * 6 >= canvasDimensions.x
   }
   march(){
-    if(Math.floor(gameState.time) % 1000 > 500){
-      this.shape = this.shape2 
-    } else{
+    Math.floor(gameState.time) % 1000 > 500 ?
+      this.shape = this.shape2 :
       this.shape = this.shape1
-    }
 
     if(!this.hasEnteredScreen){
       if(this.coords.x > 0){
