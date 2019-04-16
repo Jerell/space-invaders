@@ -308,7 +308,7 @@ class Player extends Character {
   }
   draw(){
     if(this.powerUpActive){
-      if(gameState.time - this.powerUpStartTime > 3000){
+      if(gameState.time - this.powerUpStartTime > 8000){
         this.endPower()
       }
     }
@@ -381,7 +381,7 @@ class Projectile {
   fly(){
     var currentSpeed = gameState.unpaused ? this.speed : 0;
     this.coords.y += currentSpeed
-    if (this.coords.y < 0 || this.coords.y > canvasDimensions.y) {
+    if (this.coords.y  - 70 < 0 || this.coords.y > canvasDimensions.y) {
       this.die()
     }
   }
