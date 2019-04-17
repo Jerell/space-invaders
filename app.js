@@ -210,6 +210,12 @@ class Character {
 
   hitDetection(){
     for (let i = gameState.activeObjects.length - 1; i >= 0; i--) {
+      if(!gameState.activeObjects[i].coords){
+        continue
+      }
+      if(Math.abs(this.coords.x - gameState.activeObjects[i].coords.x) > 150){
+        continue
+      }
       if (gameState.activeObjects[i] instanceof Projectile) {
         
         var x = ((this.shape.length - 1) % CHARACTER_IMAGE_COLUMNS) + 1
@@ -236,7 +242,7 @@ class Character {
             gameState.activeObjects[i].die()
             this.takeDamage()
           } else if (
-            (this instanceof Enemy && bulletSpeed <= 0) ||
+            (this instanceof Enemy && bulletSpeed <= 0) || 
             (this instanceof PowerUp && !bulletCanHurtPlayer)
           ) {
             gameState.activeObjects[i].die()
