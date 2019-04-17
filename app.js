@@ -444,6 +444,12 @@ class Enemy extends Character {
     var fractionOfMax = 2 * dist / canvasDimensions.x
     return (1 - fractionOfMax) * 5
   }
+  die(){
+    if(Math.random() < 1 / 30){
+      let po = new PowerUp()
+    }
+    super.die()
+  }
   shoot() {
     if(!this.hasEnteredScreen){
       return
